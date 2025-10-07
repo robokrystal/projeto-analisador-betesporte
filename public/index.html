@@ -290,8 +290,14 @@
       totalOdds++;
       if (isNova) {
         oddsNovas++;
-        // Tocar som de alerta (opcional)
+
+        // Tocar som de alerta
         playNotificationSound();
+
+        // Mostrar notificação do navegador
+        mostrarNotificacaoNavegador(odd);
+
+        console.log('🔔 ALERTA! Nova Super Odd detectada!');
       }
 
       const valorNum = parseFloat(odd.valor.replace(',', '.'));
@@ -331,17 +337,69 @@
     }
 
     function playNotificationSound() {
-      // Som de notificação (opcional - pode adicionar um arquivo de áudio)
-      try {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBQg');
-        audio.play();
-      } catch (e) {
-        console.log('Som não disponível');
+      // Som de alerta mais alto e chamativo
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+      // Criar três beeps em sequência (alerta)
+      [0, 0.15, 0.3].forEach((delay, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800; // Frequência alta (alerta)
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime + delay);
+        gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + delay + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + delay + 0.1);
+
+        oscillator.start(audioContext.currentTime + delay);
+        oscillator.stop(audioContext.currentTime + delay + 0.1);
+      });
+    }
+
+    function mostrarNotificacaoNavegador(odd) {
+      // Solicitar permissão para notificações
+      if ('Notification' in window && Notification.permission === 'granted') {
+        const notification = new Notification('🎯 Nova Super Odd!', {
+          body: `${odd.evento}\nOdd: ${odd.valor} | ${odd.casa}`,
+          icon: '🎯',
+          badge: '🔔',
+          tag: odd.evento, // Evita notificações duplicadas
+          requireInteraction: true, // Não desaparece automaticamente
+          vibrate: [200, 100, 200] // Vibração no celular
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      }
+    }
+
+    function solicitarPermissaoNotificacao() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            console.log('✅ Permissão para notificações concedida!');
+            new Notification('🎯 Monitor de Super Odds', {
+              body: 'Você receberá alertas quando novas odds forem detectadas!',
+              icon: '🎯'
+            });
+          } else {
+            console.log('⚠️ Permissão para notificações negada');
+          }
+        });
       }
     }
 
     // Iniciar conexão
     conectarWebSocket();
+
+    // Solicitar permissão para notificações após 2 segundos
+    setTimeout(solicitarPermissaoNotificacao, 2000);
   </script>
 </body>
 </html>
