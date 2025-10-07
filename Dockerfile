@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependências (apenas produção)
-RUN npm ci --only=production
+RUN npm install --production
 
 # Copiar código do servidor
 COPY server.js ./
