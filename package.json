@@ -1,0 +1,19 @@
+{
+  "name": "betesporte-scraper-server",
+  "version": "1.0.0",
+  "description": "WebSocket Server para monitoramento de Super Odds",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "scraper": "node scraper.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["websocket", "scraper", "odds"],
+  "author": "Gabriel",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "ws": "^8.18.3",
+    "puppeteer": "^24.23.0"
+  }
+}

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitor de Super Odds - BetEsporte</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .status {
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .status.conectado {
+      background: #10b981;
+      color: white;
+    }
+
+    .status.desconectado {
+      background: #ef4444;
+      color: white;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-label {
+      color: #666;
+      margin-top: 5px;
+    }
+
+    #odds-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .odd-card {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease;
+      animation: slideIn 0.5s ease;
+    }
+
+    .odd-card.nova {
+      border: 3px solid #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    .odd-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+      }
+      50% {
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.8);
+      }
+    }
+
+    .odd-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .odd-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #10b981;
+    }
+
+    .odd-badge {
+      background: #667eea;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+    }
+
+    .odd-evento {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .odd-info {
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .odd-timestamp {
+      color: #999;
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: white;
+      padding: 60px 20px;
+    }
+
+    .empty-state h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .btn-link {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: transform 0.2s;
+    }
+
+    .btn-link:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎯 Monitor de Super Odds</h1>
+      <div class="status desconectado" id="status">⚠️ Conectando...</div>
+    </header>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="total-odds">0</div>
+        <div class="stat-label">Total de Odds</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="odds-novas">0</div>
+        <div class="stat-label">Odds Novas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="maior-odd">-</div>
+        <div class="stat-label">Maior Odd</div>
+      </div>
+    </div>
+
+    <div id="odds-container"></div>
+
+    <div class="empty-state" id="empty-state">
+      <h2>🔍 Aguardando dados...</h2>
+      <p>Execute o scraper no seu PC para começar a monitorar</p>
+      <p style="margin-top: 10px; font-size: 0.9rem;">
+        <code>node scraper.js</code>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // ALTERE AQUI para a URL do seu Fly.io
+    const WS_URL = 'wss://betesporte-server.fly.dev';
+
+    let ws;
+    let reconnectInterval = 3000;
+    let totalOdds = 0;
+    let oddsNovas = 0;
+    let maiorOdd = 0;
+
+    const statusEl = document.getElementById('status');
+    const containerEl = document.getElementById('odds-container');
+    const emptyStateEl = document.getElementById('empty-state');
+
+    function conectarWebSocket() {
+      ws = new WebSocket(WS_URL);
+
+      ws.onopen = () => {
+        console.log('✅ Conectado ao servidor');
+        statusEl.className = 'status conectado';
+        statusEl.textContent = '✅ Conectado';
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+
+          if (data.tipo === 'historico') {
+            // Receber histórico de odds
+            data.dados.forEach(odd => mostrarOdd(odd.dados, false));
+          } else if (data.tipo === 'super_odd') {
+            mostrarOdd(data.dados, data.dados.isNova);
+          }
+        } catch (erro) {
+          console.error('Erro ao processar mensagem:', erro);
+        }
+      };
+
+      ws.onerror = (erro) => {
+        console.error('❌ Erro WebSocket:', erro);
+      };
+
+      ws.onclose = () => {
+        console.log('⚠️ Desconectado, reconectando...');
+        statusEl.className = 'status desconectado';
+        statusEl.textContent = '⚠️ Reconectando...';
+        setTimeout(conectarWebSocket, reconnectInterval);
+      };
+    }
+
+    function mostrarOdd(odd, isNova = false) {
+      emptyStateEl.style.display = 'none';
+
+      // Verificar se odd já existe
+      const existente = document.querySelector(`[data-evento="${odd.evento}"]`);
+      if (existente) {
+        // Atualizar odd existente
+        const valorEl = existente.querySelector('.odd-value');
+        valorEl.textContent = odd.valor;
+        return;
+      }
+
+      totalOdds++;
+      if (isNova) {
+        oddsNovas++;
+        // Tocar som de alerta (opcional)
+        playNotificationSound();
+      }
+
+      const valorNum = parseFloat(odd.valor.replace(',', '.'));
+      if (valorNum > maiorOdd) {
+        maiorOdd = valorNum;
+        document.getElementById('maior-odd').textContent = odd.valor;
+      }
+
+      document.getElementById('total-odds').textContent = totalOdds;
+      document.getElementById('odds-novas').textContent = oddsNovas;
+
+      const div = document.createElement('div');
+      div.className = `odd-card ${isNova ? 'nova' : ''}`;
+      div.setAttribute('data-evento', odd.evento);
+
+      div.innerHTML = `
+        <div class="odd-header">
+          <div class="odd-value">${odd.valor}</div>
+          <div class="odd-badge">${odd.casa}</div>
+        </div>
+        <div class="odd-evento">${odd.evento}</div>
+        <div class="odd-info">
+          ${odd.tipo}${odd.dataHora ? ` • ${odd.dataHora}` : ''}
+        </div>
+        <div class="odd-timestamp">${new Date().toLocaleTimeString()}</div>
+        ${odd.link ? `<a href="${odd.link}" target="_blank" class="btn-link">Ver no site</a>` : ''}
+      `;
+
+      containerEl.prepend(div);
+
+      // Remover animação de nova após 5 segundos
+      if (isNova) {
+        setTimeout(() => {
+          div.classList.remove('nova');
+        }, 5000);
+      }
+    }
+
+    function playNotificationSound() {
+      // Som de notificação (opcional - pode adicionar um arquivo de áudio)
+      try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBQg');
+        audio.play();
+      } catch (e) {
+        console.log('Som não disponível');
+      }
+    }
+
+    // Iniciar conexão
+    conectarWebSocket();
+  </script>
+</body>
+</html>
