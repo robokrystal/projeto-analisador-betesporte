@@ -17,13 +17,17 @@ const oddsDetectadas = new Map();
 let ws;
 let wsConectado = false;
 
-function conectarWebSocket() {
+function conectarWebSocket(tentativa = 1, maxTentativas = 5) {
   return new Promise((resolve, reject) => {
+    console.log(`🔄 Tentativa ${tentativa}/${maxTentativas} de conexão...`);
+
     ws = new WebSocket(WS_URL);
+    let timeoutId;
 
     ws.on('open', () => {
       console.log('✅ Conectado ao servidor WebSocket');
       wsConectado = true;
+      clearTimeout(timeoutId);
       resolve();
     });
 
@@ -35,15 +39,26 @@ function conectarWebSocket() {
     ws.on('close', () => {
       console.log('⚠️ Desconectado do WebSocket, reconectando em 5s...');
       wsConectado = false;
-      setTimeout(conectarWebSocket, 5000);
+      setTimeout(() => conectarWebSocket(), 5000);
     });
 
-    // Timeout de 10 segundos
-    setTimeout(() => {
+    // Timeout de 30 segundos (Fly.io pode demorar para acordar)
+    timeoutId = setTimeout(() => {
       if (!wsConectado) {
-        reject(new Error('Timeout ao conectar WebSocket'));
+        ws.terminate();
+
+        if (tentativa < maxTentativas) {
+          console.log(`⏳ Timeout! Tentando novamente em 3s...`);
+          setTimeout(() => {
+            conectarWebSocket(tentativa + 1, maxTentativas)
+              .then(resolve)
+              .catch(reject);
+          }, 3000);
+        } else {
+          reject(new Error(`Falha ao conectar após ${maxTentativas} tentativas. Verifique se o servidor está online: ${WS_URL}`));
+        }
       }
-    }, 10000);
+    }, 30000);
   });
 }
 
@@ -72,13 +87,27 @@ async function monitorarSuperOdds() {
   console.log('🔍 Iniciando monitoramento de Super Odds...');
   console.log(`🌐 Casas ativas: ${CASAS_ATIVAS.join(', ')}`);
 
+  // Acordar o servidor Fly.io (pode estar dormindo)
+  console.log('🏓 Fazendo ping no servidor para acordá-lo...');
+  try {
+    const https = require('https');
+    await new Promise((resolve) => {
+      https.get(WS_URL.replace('wss://', 'https://'), () => resolve());
+      setTimeout(resolve, 5000); // Não bloquear mais que 5s
+    });
+    console.log('✅ Servidor acordado!');
+  } catch (erro) {
+    console.log('⚠️ Não foi possível fazer ping, tentando conectar mesmo assim...');
+  }
+
   // AGUARDAR CONEXÃO WEBSOCKET ANTES DE COMEÇAR
-  console.log('⏳ Aguardando conexão com servidor WebSocket...');
+  console.log('⏳ Conectando ao servidor WebSocket...');
   try {
     await conectarWebSocket();
   } catch (erro) {
-    console.error('❌ Não foi possível conectar ao WebSocket. Certifique-se que o servidor está rodando!');
-    console.error('💡 Execute: node server.js');
+    console.error('❌ Não foi possível conectar ao WebSocket após várias tentativas!');
+    console.error(`💡 Verifique se o servidor está online: ${WS_URL.replace('wss://', 'https://')}`);
+    console.error(`💡 Erro: ${erro.message}`);
     process.exit(1);
   }
 
