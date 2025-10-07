@@ -5,8 +5,8 @@ const { monitorarTodasCasas } = require('./src/casas');
 // Configurações
 const INTERVALO_MIN = 4000; // 4 segundos (mínimo)
 const INTERVALO_MAX = 7000; // 7 segundos (máximo)
-// Altere para a URL do Fly.io após deploy
-const WS_URL = process.env.WS_URL || 'wss://betesporte-server.fly.dev';
+// URL do servidor WebSocket no Fly.io
+const WS_URL = process.env.WS_URL || 'wss://projeto-analisador-betesporte.fly.dev';
 const CASAS_ATIVAS = ['betesporte']; // Adicionar outras casas aqui: ['betesporte', 'bet365', ...]
 
 // Armazena as super odds já detectadas para evitar duplicatas
