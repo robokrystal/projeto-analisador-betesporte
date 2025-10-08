@@ -433,22 +433,28 @@
       ws = new WebSocket(WS_URL);
 
       ws.onopen = () => {
-        console.log('✅ Conectado ao servidor');
+        console.log('✅ Conectado ao servidor WebSocket');
+        console.log('📍 URL:', WS_URL);
         statusEl.className = 'status conectado';
         statusEl.innerHTML = '<span class="status-dot"></span><span>Conectado</span>';
       };
 
       ws.onmessage = (event) => {
+        console.log('📨 Mensagem recebida do WebSocket:', event.data);
+
         try {
           const data = JSON.parse(event.data);
+          console.log('📦 Dados parseados:', data);
 
           if (data.tipo === 'historico') {
+            console.log('📜 Recebendo histórico de', data.dados.length, 'odds');
             data.dados.forEach(odd => mostrarOdd(odd.dados, false));
           } else if (data.tipo === 'super_odd') {
+            console.log('🎯 Recebendo super odd:', data.dados);
             mostrarOdd(data.dados, data.dados.isNova);
           }
         } catch (erro) {
-          console.error('Erro ao processar mensagem:', erro);
+          console.error('❌ Erro ao processar mensagem:', erro);
         }
       };
 
@@ -482,15 +488,13 @@
             existente.classList.remove('nova');
           }, 3000);
 
-          // Tocar som e notificar se for nova (isNova = true)
-          if (isNova) {
-            playNotificationSound();
-            mostrarNotificacaoNavegador({
-              ...odd,
-              evento: `${odd.evento} (Odd alterada: ${valorAtual} → ${odd.valor})`
-            });
-            console.log(`📈 Odd alterada: ${odd.evento} | ${valorAtual} → ${odd.valor}`);
-          }
+          // SEMPRE tocar som e notificar quando o valor mudar
+          playNotificationSound();
+          mostrarNotificacaoNavegador({
+            ...odd,
+            evento: `${odd.evento} (Odd alterada: ${valorAtual} → ${odd.valor})`
+          });
+          console.log(`📈 Odd alterada: ${odd.evento} | ${valorAtual} → ${odd.valor}`);
         }
 
         // Atualizar timestamp
@@ -502,18 +506,15 @@
         return;
       }
 
+      // Nova odd detectada
       totalOdds++;
-      if (isNova) {
-        oddsNovas++;
+      oddsNovas++;
 
-        // Tocar som de alerta
-        playNotificationSound();
+      // SEMPRE tocar som e notificar para novas odds
+      playNotificationSound();
+      mostrarNotificacaoNavegador(odd);
 
-        // Mostrar notificação do navegador
-        mostrarNotificacaoNavegador(odd);
-
-        console.log('🔔 ALERTA! Nova Super Odd detectada!');
-      }
+      console.log('🔔 ALERTA! Nova Super Odd detectada!');
 
       const valorNum = parseFloat(odd.valor.replace(',', '.'));
       if (valorNum > maiorOdd) {
@@ -632,8 +633,11 @@
       console.log('🗑️ Odds limpas! Aguardando novas...');
     }
 
+    // Solicitar permissão de notificação IMEDIATAMENTE ao carregar
+    solicitarPermissaoNotificacao();
+
+    // Conectar ao WebSocket
     conectarWebSocket();
-    setTimeout(solicitarPermissaoNotificacao, 2000);
   </script>
 </body>
 </html>
