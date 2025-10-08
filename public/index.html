@@ -25,6 +25,120 @@
       margin: 0 auto;
     }
 
+    /* Login Screen */
+    .login-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 90vh;
+    }
+
+    .login-box {
+      background: #1e293b;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 450px;
+      border: 1px solid #334155;
+    }
+
+    .login-box h1 {
+      color: #f1f5f9;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .login-box .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 30px;
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #94a3b8;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #f1f5f9;
+      transition: border-color 0.3s;
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #10b981;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .error-message {
+      color: #ef4444;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .success-message {
+      color: #10b981;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+      background: rgba(16, 185, 129, 0.1);
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .dashboard {
+      display: none;
+    }
+
     /* Header */
     header {
       display: flex;
@@ -371,6 +485,24 @@
   </style>
 </head>
 <body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-box">
+      <h1><span class="logo">🎯</span> Super Odds</h1>
+      <p class="subtitle">Insira seu token de acesso para continuar</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Token de Acesso</label>
+          <input type="text" id="accessToken" placeholder="SUPER-XXXXXXXXXX" required autocomplete="off">
+        </div>
+        <button type="submit" class="btn-login">🔓 Acessar Dashboard</button>
+        <div id="loginMessage"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard">
   <div class="container">
     <header>
       <h1>
@@ -414,10 +546,90 @@
       </p>
     </div>
   </div>
+  </div>
+  </div>
 
   <script>
-    // URL do servidor WebSocket via Ngrok (local)
+    // URLs da API
+    const API_URL = 'https://analisador-betesporte.fly.dev';
     const WS_URL = 'wss://ectopic-rounded-izabella.ngrok-free.dev';
+
+    // Verificar se já tem token salvo
+    const savedToken = localStorage.getItem('access_token');
+
+    if (savedToken) {
+      // Validar token salvo
+      validateToken(savedToken);
+    }
+
+    // Login com token
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = document.getElementById('accessToken').value.trim();
+      const messageEl = document.getElementById('loginMessage');
+
+      messageEl.textContent = '';
+      messageEl.className = '';
+
+      try {
+        const response = await fetch(`${API_URL}/api/validate-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await response.json();
+
+        if (data.valid) {
+          localStorage.setItem('access_token', token);
+          messageEl.textContent = '✅ Token válido! Acessando dashboard...';
+          messageEl.className = 'success-message';
+
+          setTimeout(() => {
+            showDashboard();
+          }, 1000);
+        } else {
+          messageEl.textContent = `❌ ${data.reason || 'Token inválido'}`;
+          messageEl.className = 'error-message';
+        }
+      } catch (error) {
+        messageEl.textContent = '❌ Erro ao conectar com servidor';
+        messageEl.className = 'error-message';
+      }
+    });
+
+    // Validar token salvo
+    async function validateToken(token) {
+      try {
+        const response = await fetch(`${API_URL}/api/validate-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await response.json();
+
+        if (data.valid) {
+          showDashboard();
+        } else {
+          localStorage.removeItem('access_token');
+          document.getElementById('loginScreen').style.display = 'flex';
+        }
+      } catch (error) {
+        console.error('Erro ao validar token:', error);
+        document.getElementById('loginScreen').style.display = 'flex';
+      }
+    }
+
+    // Mostrar dashboard
+    function showDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      iniciarDashboard();
+    }
+
+    // Iniciar dashboard (código original do WebSocket)
+    function iniciarDashboard() {
 
     let ws;
     let reconnectInterval = 3000;
@@ -652,6 +864,7 @@
 
     // Conectar ao WebSocket
     conectarWebSocket();
+    }
   </script>
 </body>
 </html>

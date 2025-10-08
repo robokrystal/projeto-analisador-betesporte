@@ -8,11 +8,16 @@
     "scraper": "node scraper.js",
     "dev": "node server.js"
   },
-  "keywords": ["websocket", "scraper", "odds"],
+  "keywords": [
+    "websocket",
+    "scraper",
+    "odds"
+  ],
   "author": "Gabriel",
   "license": "MIT",
   "dependencies": {
     "express": "^5.1.0",
+    "sqlite3": "^5.1.7",
     "ws": "^8.18.3"
   },
   "devDependencies": {

@@ -1,7 +1,9 @@
 const WebSocket = require('ws');
 const express = require('express');
+const { tokenManager, adminManager } = require('./backend/database');
 
 const app = express();
+app.use(express.json());
 
 // CORS habilitado via headers
 app.use((req, res, next) => {
@@ -18,6 +20,154 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', connections: wss.clients.size });
+});
+
+// ========== ROTAS DE AUTENTICAÇÃO ==========
+
+// Validar token de acesso (usado pelo dashboard)
+app.post('/api/validate-token', async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ valid: false, message: 'Token não fornecido' });
+    }
+
+    const result = await tokenManager.validateToken(token);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ valid: false, message: 'Erro ao validar token' });
+  }
+});
+
+// ========== ROTAS DO PAINEL ADMIN ==========
+
+// Login do admin
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { password } = req.body;
+    const isValid = await adminManager.validatePassword(password);
+
+    if (isValid) {
+      res.json({ success: true, message: 'Login bem-sucedido' });
+    } else {
+      res.status(401).json({ success: false, message: 'Senha incorreta' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro ao fazer login' });
+  }
+});
+
+// Criar novo token
+app.post('/api/admin/tokens/create', async (req, res) => {
+  try {
+    const { password, durationDays } = req.body;
+
+    // Validar senha admin
+    const isValid = await adminManager.validatePassword(password);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: 'Não autorizado' });
+    }
+
+    if (!durationDays || durationDays <= 0) {
+      return res.status(400).json({ success: false, message: 'Duração inválida' });
+    }
+
+    const newToken = await tokenManager.createToken(parseInt(durationDays));
+    res.json({ success: true, token: newToken });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro ao criar token' });
+  }
+});
+
+// Listar todos os tokens
+app.post('/api/admin/tokens/list', async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    // Validar senha admin
+    const isValid = await adminManager.validatePassword(password);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: 'Não autorizado' });
+    }
+
+    const tokens = await tokenManager.listTokens();
+    const stats = await tokenManager.getStats();
+    res.json({ success: true, tokens, stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro ao listar tokens' });
+  }
+});
+
+// Revogar token
+app.post('/api/admin/tokens/revoke', async (req, res) => {
+  try {
+    const { password, tokenId } = req.body;
+
+    // Validar senha admin
+    const isValid = await adminManager.validatePassword(password);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: 'Não autorizado' });
+    }
+
+    await tokenManager.revokeToken(tokenId);
+    res.json({ success: true, message: 'Token revogado com sucesso' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro ao revogar token' });
+  }
+});
+
+// Deletar token
+app.post('/api/admin/tokens/delete', async (req, res) => {
+  try {
+    const { password, tokenId } = req.body;
+
+    // Validar senha admin
+    const isValid = await adminManager.validatePassword(password);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: 'Não autorizado' });
+    }
+
+    await tokenManager.deleteToken(tokenId);
+    res.json({ success: true, message: 'Token deletado com sucesso' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro ao deletar token' });
+  }
+});
+
+// Estender duração do token
+app.post('/api/admin/tokens/extend', async (req, res) => {
+  try {
+    const { password, tokenId, additionalDays } = req.body;
+
+    // Validar senha admin
+    const isValid = await adminManager.validatePassword(password);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: 'Não autorizado' });
+    }
+
+    await tokenManager.extendToken(tokenId, parseInt(additionalDays));
+    res.json({ success: true, message: 'Token estendido com sucesso' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro ao estender token' });
+  }
+});
+
+// Alterar senha do admin
+app.post('/api/admin/change-password', async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    // Validar senha antiga
+    const isValid = await adminManager.validatePassword(oldPassword);
+    if (!isValid) {
+      return res.status(401).json({ success: false, message: 'Senha atual incorreta' });
+    }
+
+    await adminManager.changePassword(newPassword);
+    res.json({ success: true, message: 'Senha alterada com sucesso' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Erro ao alterar senha' });
+  }
 });
 
 const PORT = process.env.PORT || 3000;

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin - Super Odds</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Login Screen */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 90vh;
+    }
+
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-box h1 {
+      color: #667eea;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #5568d3;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .btn-success {
+      background: #28a745;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    .error-message {
+      color: #dc3545;
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    /* Admin Panel */
+    .admin-panel {
+      display: none;
+    }
+
+    .header {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      color: #667eea;
+    }
+
+    .logout-btn {
+      padding: 10px 20px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-card h3 {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .stat-card .number {
+      font-size: 36px;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+
+    .create-token-form {
+      display: flex;
+      gap: 15px;
+      align-items: flex-end;
+      margin-bottom: 30px;
+    }
+
+    .create-token-form .form-group {
+      flex: 1;
+      margin: 0;
+    }
+
+    .create-token-form button {
+      width: auto;
+      padding: 12px 30px;
+    }
+
+    .token-result {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .token-result.show {
+      display: block;
+    }
+
+    .token-code {
+      background: #667eea;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin: 15px 0;
+      font-family: monospace;
+      letter-spacing: 2px;
+    }
+
+    .copy-btn {
+      width: 100%;
+      padding: 10px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .copy-btn:hover {
+      background: #218838;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background: #f8f9fa;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-ativo {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-expirado {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-revogado {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .action-btn.extend {
+      background: #17a2b8;
+      color: white;
+    }
+
+    .action-btn.revoke {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .action-btn.delete {
+      background: #dc3545;
+      color: white;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .create-token-form {
+        flex-direction: column;
+      }
+
+      .create-token-form button {
+        width: 100%;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-container">
+    <div class="login-box">
+      <h1>🔐 Painel Admin</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Senha de Administrador</label>
+          <input type="password" id="adminPassword" placeholder="Digite sua senha" required>
+        </div>
+        <button type="submit" class="btn">Entrar</button>
+        <div id="loginError" class="error-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" class="admin-panel">
+    <div class="container">
+      <div class="header">
+        <h1>🎯 Painel de Administração</h1>
+        <button class="logout-btn" onclick="logout()">Sair</button>
+      </div>
+
+      <!-- Statistics -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total de Tokens</h3>
+          <div class="number" id="totalTokens">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Tokens Ativos</h3>
+          <div class="number" id="activeTokens">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Tokens Expirados</h3>
+          <div class="number" id="expiredTokens">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Tokens Revogados</h3>
+          <div class="number" id="revokedTokens">0</div>
+        </div>
+      </div>
+
+      <!-- Create Token Section -->
+      <div class="section">
+        <h2>➕ Criar Novo Token</h2>
+        <div class="create-token-form">
+          <div class="form-group">
+            <label>Duração (dias)</label>
+            <input type="number" id="tokenDuration" placeholder="Ex: 30" min="1" required>
+          </div>
+          <button class="btn" onclick="createToken()">Gerar Token</button>
+        </div>
+
+        <div id="tokenResult" class="token-result">
+          <h3>✅ Token criado com sucesso!</h3>
+          <div class="token-code" id="newTokenCode"></div>
+          <p><strong>Expira em:</strong> <span id="tokenExpiry"></span></p>
+          <button class="copy-btn" onclick="copyToken()">📋 Copiar Token</button>
+        </div>
+      </div>
+
+      <!-- Tokens List Section -->
+      <div class="section">
+        <h2>📋 Lista de Tokens</h2>
+        <button class="btn btn-secondary" onclick="loadTokens()">🔄 Atualizar Lista</button>
+
+        <div id="tokensTable">
+          <div class="loading">Carregando tokens...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://analisador-betesporte.fly.dev';
+    let adminPassword = '';
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = document.getElementById('adminPassword').value;
+
+      try {
+        const response = await fetch(`${API_URL}/api/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          adminPassword = password;
+          document.getElementById('loginScreen').style.display = 'none';
+          document.getElementById('adminPanel').style.display = 'block';
+          loadTokens();
+        } else {
+          document.getElementById('loginError').textContent = 'Senha incorreta!';
+        }
+      } catch (error) {
+        document.getElementById('loginError').textContent = 'Erro ao conectar com servidor';
+      }
+    });
+
+    // Logout
+    function logout() {
+      adminPassword = '';
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('loginError').textContent = '';
+    }
+
+    // Create Token
+    async function createToken() {
+      const durationDays = document.getElementById('tokenDuration').value;
+
+      if (!durationDays || durationDays <= 0) {
+        alert('Por favor, insira uma duração válida');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/api/admin/tokens/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword, durationDays: parseInt(durationDays) })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          document.getElementById('newTokenCode').textContent = data.token.token;
+          document.getElementById('tokenExpiry').textContent = new Date(data.token.expiresAt).toLocaleString('pt-BR');
+          document.getElementById('tokenResult').classList.add('show');
+          document.getElementById('tokenDuration').value = '';
+
+          // Reload tokens list
+          setTimeout(() => loadTokens(), 1000);
+        } else {
+          alert('Erro ao criar token: ' + data.message);
+        }
+      } catch (error) {
+        alert('Erro ao conectar com servidor');
+      }
+    }
+
+    // Copy Token
+    function copyToken() {
+      const tokenCode = document.getElementById('newTokenCode').textContent;
+      navigator.clipboard.writeText(tokenCode);
+
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = '✅ Copiado!';
+      setTimeout(() => {
+        btn.textContent = originalText;
+      }, 2000);
+    }
+
+    // Load Tokens
+    async function loadTokens() {
+      try {
+        const response = await fetch(`${API_URL}/api/admin/tokens/list`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Update stats
+          document.getElementById('totalTokens').textContent = data.stats.total;
+          document.getElementById('activeTokens').textContent = data.stats.active;
+          document.getElementById('expiredTokens').textContent = data.stats.expired;
+          document.getElementById('revokedTokens').textContent = data.stats.revoked;
+
+          // Update table
+          renderTokensTable(data.tokens);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar tokens:', error);
+      }
+    }
+
+    // Render Tokens Table
+    function renderTokensTable(tokens) {
+      const container = document.getElementById('tokensTable');
+
+      if (tokens.length === 0) {
+        container.innerHTML = '<p class="loading">Nenhum token encontrado</p>';
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>Status</th>
+              <th>Criado em</th>
+              <th>Expira em</th>
+              <th>Dias Restantes</th>
+              <th>Último Uso</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      tokens.forEach(token => {
+        const statusClass = `status-${token.status}`;
+        const createdAt = new Date(token.created_at).toLocaleString('pt-BR');
+        const expiresAt = new Date(token.expires_at).toLocaleString('pt-BR');
+        const lastUsed = token.last_used ? new Date(token.last_used).toLocaleString('pt-BR') : 'Nunca';
+        const daysRemaining = token.days_remaining >= 0 ? token.days_remaining : 0;
+
+        html += `
+          <tr>
+            <td><code>${token.token}</code></td>
+            <td><span class="status-badge ${statusClass}">${token.status}</span></td>
+            <td>${createdAt}</td>
+            <td>${expiresAt}</td>
+            <td>${daysRemaining} dias</td>
+            <td>${lastUsed}</td>
+            <td>
+              <div class="action-buttons">
+                ${token.status === 'ativo' ? `
+                  <button class="action-btn extend" onclick="extendToken(${token.id})">+Dias</button>
+                  <button class="action-btn revoke" onclick="revokeToken(${token.id})">Revogar</button>
+                ` : ''}
+                <button class="action-btn delete" onclick="deleteToken(${token.id})">Deletar</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `
+          </tbody>
+        </table>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    // Extend Token
+    async function extendToken(tokenId) {
+      const additionalDays = prompt('Quantos dias deseja adicionar?');
+      if (!additionalDays || additionalDays <= 0) return;
+
+      try {
+        const response = await fetch(`${API_URL}/api/admin/tokens/extend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword, tokenId, additionalDays: parseInt(additionalDays) })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          alert('Token estendido com sucesso!');
+          loadTokens();
+        } else {
+          alert('Erro: ' + data.message);
+        }
+      } catch (error) {
+        alert('Erro ao conectar com servidor');
+      }
+    }
+
+    // Revoke Token
+    async function revokeToken(tokenId) {
+      if (!confirm('Tem certeza que deseja revogar este token?')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/api/admin/tokens/revoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword, tokenId })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          alert('Token revogado com sucesso!');
+          loadTokens();
+        } else {
+          alert('Erro: ' + data.message);
+        }
+      } catch (error) {
+        alert('Erro ao conectar com servidor');
+      }
+    }
+
+    // Delete Token
+    async function deleteToken(tokenId) {
+      if (!confirm('Tem certeza que deseja DELETAR este token? Esta ação é irreversível!')) return;
+
+      try {
+        const response = await fetch(`${API_URL}/api/admin/tokens/delete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPassword, tokenId })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          alert('Token deletado com sucesso!');
+          loadTokens();
+        } else {
+          alert('Erro: ' + data.message);
+        }
+      } catch (error) {
+        alert('Erro ao conectar com servidor');
+      }
+    }
+  </script>
+</body>
+</html>
