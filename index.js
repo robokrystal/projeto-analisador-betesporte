@@ -8,12 +8,15 @@ const WS_URL = process.env.WS_URL || 'wss://ectopic-rounded-izabella.ngrok-free.
 // Importar scrapers de todas as plataformas
 // Para ativar uma casa, descomente a linha correspondente
 const scrapers = [
-  require('./src/scrapers/betesporte'),    // ✅ Ativa (configurada)
-  // require('./src/scrapers/bet365'),     // ⏳ Aguardando configuração
-  // require('./src/scrapers/pixbet'),     // ⏳ Aguardando configuração
-  // require('./src/scrapers/sportingbet'),// ⏳ Aguardando configuração
-  // require('./src/scrapers/betano'),     // ⏳ Aguardando configuração
-  // require('./src/scrapers/1xbet'),      // ⏳ Aguardando configuração
+  require('./src/scrapers/betesporte'),      // ✅ Ativa (configurada)
+  // require('./src/scrapers/bet365'),       // ⏳ Aguardando configuração
+  // require('./src/scrapers/betano'),       // ⏳ Aguardando configuração
+  // require('./src/scrapers/novibet'),      // ⏳ Aguardando configuração
+  // require('./src/scrapers/bolsadeaposta'),// ⏳ Aguardando configuração
+  // require('./src/scrapers/fulltbet'),     // ⏳ Aguardando configuração
+  // require('./src/scrapers/betbra'),       // ⏳ Aguardando configuração
+  // require('./src/scrapers/multibet'),     // ⏳ Aguardando configuração
+  // require('./src/scrapers/pixbet'),       // ⏳ Aguardando configuração
   // Adicione novos scrapers aqui conforme implementar
 ];
 
