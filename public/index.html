@@ -439,11 +439,18 @@
         statusEl.innerHTML = '<span class="status-dot"></span><span>Conectado</span>';
       };
 
-      ws.onmessage = (event) => {
-        console.log('📨 Mensagem recebida do WebSocket:', event.data);
-
+      ws.onmessage = async (event) => {
         try {
-          const data = JSON.parse(event.data);
+          let mensagem = event.data;
+
+          // Se for Blob, converter para texto
+          if (mensagem instanceof Blob) {
+            mensagem = await mensagem.text();
+          }
+
+          console.log('📨 Mensagem recebida do WebSocket:', mensagem);
+
+          const data = JSON.parse(mensagem);
           console.log('📦 Dados parseados:', data);
 
           if (data.tipo === 'historico') {
@@ -455,6 +462,7 @@
           }
         } catch (erro) {
           console.error('❌ Erro ao processar mensagem:', erro);
+          console.error('Dados recebidos:', event.data);
         }
       };
 
