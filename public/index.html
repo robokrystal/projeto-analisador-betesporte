@@ -510,6 +510,9 @@
         <span>ROBOZINHO DA TROPA</span>
       </h1>
       <div class="header-actions">
+        <button class="btn-limpar" onclick="testarSom()">
+          🔊 Testar Som
+        </button>
         <button class="btn-limpar" onclick="limparOdds()">
           🗑️ Limpar
         </button>
@@ -857,6 +860,26 @@
       emptyStateEl.style.display = 'block';
 
       console.log('🗑️ Odds limpas! Aguardando novas...');
+    }
+
+    function testarSom() {
+      console.log('🔊 Testando som...');
+      playNotificationSound();
+
+      // Mostrar feedback visual
+      const btn = event.target;
+      const textoOriginal = btn.textContent;
+      btn.textContent = '✅ Som Testado!';
+      btn.style.background = 'rgba(16, 185, 129, 0.2)';
+      btn.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+      btn.style.color = '#10b981';
+
+      setTimeout(() => {
+        btn.textContent = textoOriginal;
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }, 2000);
     }
 
     // Solicitar permissão de notificação IMEDIATAMENTE ao carregar
