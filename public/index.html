@@ -639,6 +639,45 @@
     let maiorOdd = 0;
     let statusEl, containerEl, emptyStateEl;
 
+    // Função global de som (DEVE estar ANTES de iniciarDashboard)
+    function playNotificationSound() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Resume o contexto se estiver suspenso
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+
+        console.log('🔊 AudioContext state:', audioContext.state);
+
+        // Tocar 3 beeps com volume mais alto
+        [0, 0.2, 0.4].forEach((delay) => {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+
+          oscillator.frequency.value = 1000; // Frequência mais alta (mais audível)
+          oscillator.type = 'sine';
+
+          // Volume mais alto (0.5 em vez de 0.3)
+          gainNode.gain.setValueAtTime(0, audioContext.currentTime + delay);
+          gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + delay + 0.05);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + delay + 0.2);
+
+          oscillator.start(audioContext.currentTime + delay);
+          oscillator.stop(audioContext.currentTime + delay + 0.2);
+        });
+
+        console.log('🔊 Som tocado com sucesso!');
+      } catch (error) {
+        console.error('❌ Erro ao tocar som:', error);
+        alert('Erro ao tocar som: ' + error.message);
+      }
+    }
+
     // Iniciar dashboard (código original do WebSocket)
     function iniciarDashboard() {
       statusEl = document.getElementById('status');
@@ -786,45 +825,6 @@
         setTimeout(() => {
           div.classList.remove('nova');
         }, 5000);
-      }
-    }
-
-    // Função global de som
-    function playNotificationSound() {
-      try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-        // Resume o contexto se estiver suspenso
-        if (audioContext.state === 'suspended') {
-          audioContext.resume();
-        }
-
-        console.log('🔊 AudioContext state:', audioContext.state);
-
-        // Tocar 3 beeps com volume mais alto
-        [0, 0.2, 0.4].forEach((delay) => {
-          const oscillator = audioContext.createOscillator();
-          const gainNode = audioContext.createGain();
-
-          oscillator.connect(gainNode);
-          gainNode.connect(audioContext.destination);
-
-          oscillator.frequency.value = 1000; // Frequência mais alta (mais audível)
-          oscillator.type = 'sine';
-
-          // Volume mais alto (0.5 em vez de 0.3)
-          gainNode.gain.setValueAtTime(0, audioContext.currentTime + delay);
-          gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + delay + 0.05);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + delay + 0.2);
-
-          oscillator.start(audioContext.currentTime + delay);
-          oscillator.stop(audioContext.currentTime + delay + 0.2);
-        });
-
-        console.log('🔊 Som tocado com sucesso!');
-      } catch (error) {
-        console.error('❌ Erro ao tocar som:', error);
-        alert('Erro ao tocar som: ' + error.message);
       }
     }
 
