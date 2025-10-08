@@ -89,6 +89,36 @@
       50% { opacity: 0.5; }
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-limpar {
+      padding: 8px 16px;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-limpar:hover {
+      background: rgba(239, 68, 68, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .btn-limpar:active {
+      transform: translateY(0);
+    }
+
     /* Stats */
     .stats {
       display: grid;
@@ -295,6 +325,17 @@
 
     /* Responsive */
     @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
       h1 {
         font-size: 1.25rem;
       }
@@ -335,9 +376,14 @@
         <span class="logo">🎯</span>
         <span>Monitor de Super Odds</span>
       </h1>
-      <div class="status desconectado" id="status">
-        <span class="status-dot"></span>
-        <span>Conectando...</span>
+      <div class="header-actions">
+        <button class="btn-limpar" onclick="limparOdds()">
+          🗑️ Limpar
+        </button>
+        <div class="status desconectado" id="status">
+          <span class="status-dot"></span>
+          <span>Conectando...</span>
+        </div>
       </div>
     </header>
 
@@ -563,6 +609,26 @@
           }
         });
       }
+    }
+
+    function limparOdds() {
+      // Limpar todos os cards de odds
+      containerEl.innerHTML = '';
+
+      // Resetar contadores
+      totalOdds = 0;
+      oddsNovas = 0;
+      maiorOdd = 0;
+
+      // Atualizar estatísticas
+      document.getElementById('total-odds').textContent = '0';
+      document.getElementById('odds-novas').textContent = '0';
+      document.getElementById('maior-odd').textContent = '-';
+
+      // Mostrar empty state
+      emptyStateEl.style.display = 'block';
+
+      console.log('🗑️ Odds limpas! Aguardando novas...');
     }
 
     conectarWebSocket();
