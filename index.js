@@ -6,10 +6,14 @@ const INTERVALO_MAX = 2000; // 2 segundos
 const WS_URL = process.env.WS_URL || 'wss://ectopic-rounded-izabella.ngrok-free.dev';
 
 // Importar scrapers de todas as plataformas
+// Para ativar uma casa, descomente a linha correspondente
 const scrapers = [
-  require('./src/scrapers/betesporte'),
-  require('./src/scrapers/bet365'),
-  require('./src/scrapers/pixbet'),
+  require('./src/scrapers/betesporte'),    // ✅ Ativa (configurada)
+  // require('./src/scrapers/bet365'),     // ⏳ Aguardando configuração
+  // require('./src/scrapers/pixbet'),     // ⏳ Aguardando configuração
+  // require('./src/scrapers/sportingbet'),// ⏳ Aguardando configuração
+  // require('./src/scrapers/betano'),     // ⏳ Aguardando configuração
+  // require('./src/scrapers/1xbet'),      // ⏳ Aguardando configuração
   // Adicione novos scrapers aqui conforme implementar
 ];
 
