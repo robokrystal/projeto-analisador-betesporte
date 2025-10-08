@@ -24,10 +24,10 @@ db.serialize(() => {
     password_hash TEXT NOT NULL
   )`);
 
-  // Criar senha padrão do admin se não existir: "admin123"
+  // Criar senha padrão do admin se não existir: "a1b2c3d4"
   const defaultPasswordHash = crypto
     .createHash('sha256')
-    .update('admin123')
+    .update('a1b2c3d4')
     .digest('hex');
 
   db.run(

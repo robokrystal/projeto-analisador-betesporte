@@ -20,7 +20,11 @@
       "Bash(node server.js)",
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(ngrok config:*)",
+      "Bash(tasklist)",
+      "Bash(node:*)",
+      "Bash(del backendupdate-password.js)"
     ],
     "deny": [],
     "ask": []

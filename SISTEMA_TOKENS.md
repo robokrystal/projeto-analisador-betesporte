@@ -12,7 +12,7 @@ Sistema completo de autenticação com tokens para controle de acesso ao dashboa
 - ✅ Banco de dados SQLite para armazenar tokens
 - ✅ Sistema de validação de tokens com data de expiração
 - ✅ API REST completa para gerenciamento
-- ✅ Senha padrão admin: `admin123`
+- ✅ Senha padrão admin: `a1b2c3d4`
 
 ### 2. **Painel Admin**
 - ✅ Acesso: `https://analisadorbetesporte.netlify.app/admin.html`
@@ -38,7 +38,7 @@ Sistema completo de autenticação com tokens para controle de acesso ao dashboa
 ### **Passo 1: Acessar o Painel Admin**
 
 1. Acesse: `https://analisadorbetesporte.netlify.app/admin.html`
-2. Digite a senha: `admin123`
+2. Digite a senha: `a1b2c3d4`
 3. Clique em "Entrar"
 
 ### **Passo 2: Criar Token para Cliente**
@@ -95,7 +95,7 @@ backend/tokens.db
 ## 🔐 Segurança
 
 ### **Senha Admin**
-- Senha padrão: `admin123`
+- Senha padrão: `a1b2c3d4`
 - **IMPORTANTE:** Alterar senha após primeiro acesso!
 - Hash SHA-256 armazenado no banco
 
@@ -110,7 +110,7 @@ backend/tokens.db
 // Via API (em breve terá interface visual)
 POST /api/admin/change-password
 Body: {
-  "oldPassword": "admin123",
+  "oldPassword": "a1b2c3d4",
   "newPassword": "sua_nova_senha_forte"
 }
 ```
@@ -168,7 +168,7 @@ ngrok http 3000
 
 1. **Você (Admin):**
    - Acessa `admin.html`
-   - Loga com senha `admin123`
+   - Loga com senha `a1b2c3d4`
    - Cria token de 30 dias
    - Recebe: `SUPER-A1B2C3D4E5F6`
    - Copia e envia para o cliente
@@ -253,7 +253,7 @@ Dashboard   Erro
 
 ### **Erro: "Não autorizado" no admin**
 - Senha incorreta
-- Verificar se está usando `admin123`
+- Verificar se está usando `a1b2c3d4`
 - Se alterou a senha, usar a nova
 
 ### **Cliente não consegue acessar**
@@ -291,7 +291,7 @@ Dashboard   Erro
 Sistema funcionando 100%! Qualquer dúvida, estou aqui para ajudar.
 
 **Senhas e Acessos:**
-- 🔑 Senha Admin Padrão: `admin123`
+- 🔑 Senha Admin Padrão: `a1b2c3d4`
 - 🌐 Painel Admin: `https://analisadorbetesporte.netlify.app/admin.html`
 - 🌐 Dashboard: `https://analisadorbetesporte.netlify.app`
 - 🔌 API (Ngrok): `https://ectopic-rounded-izabella.ngrok-free.dev`
