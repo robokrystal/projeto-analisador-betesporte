@@ -24,7 +24,8 @@
       "Bash(ngrok config:*)",
       "Bash(tasklist)",
       "Bash(node:*)",
-      "Bash(del backendupdate-password.js)"
+      "Bash(del backendupdate-password.js)",
+      "Bash(git remote set-url:*)"
     ],
     "deny": [],
     "ask": []

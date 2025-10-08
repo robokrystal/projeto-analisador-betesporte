@@ -56,8 +56,8 @@ node index.js
 ## 🌐 Acessar o Dashboard
 
 Depois de tudo rodando, acesse:
-- **Dashboard:** https://projeto-analisador-betesporte.pages.dev
-- **Painel Admin:** https://projeto-analisador-betesporte.pages.dev/admin.html
+- **Dashboard:** https://krystalodd.pages.dev
+- **Painel Admin:** https://krystalodd.pages.dev/admin.html
 
 ---
 
