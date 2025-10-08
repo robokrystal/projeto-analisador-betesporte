@@ -642,17 +642,9 @@
     // Função global de som (DEVE estar ANTES de iniciarDashboard)
     function playNotificationSound() {
       try {
-        // Tocar o som 2 vezes para ser mais chamativo
-        const audio1 = new Audio('notification.mp3');
-        audio1.volume = 1.0;
-        audio1.play().catch(err => console.error('❌ Erro ao tocar som:', err));
-
-        setTimeout(() => {
-          const audio2 = new Audio('notification.mp3');
-          audio2.volume = 1.0;
-          audio2.play().catch(err => console.error('❌ Erro ao tocar som:', err));
-        }, 300); // Pequeno delay entre os sons
-
+        const audio = new Audio('notification.mp3');
+        audio.volume = 1.0; // Volume máximo
+        audio.play().catch(err => console.error('❌ Erro ao tocar som:', err));
         console.log('✅ Som tocado');
       } catch (error) {
         console.error('❌ Erro ao tocar som:', error);
