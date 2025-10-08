@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monitor de Super Odds - BetEsporte</title>
+  <title>Monitor de Super Odds</title>
   <style>
     * {
       margin: 0;
@@ -12,47 +12,84 @@
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
       min-height: 100vh;
       padding: 20px;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
+    /* Header */
     header {
-      text-align: center;
-      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #334155;
     }
 
     h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      font-size: 2rem;
     }
 
     .status {
-      display: inline-block;
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-weight: bold;
-      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
     }
 
     .status.conectado {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status.conectado .status-dot {
       background: #10b981;
-      color: white;
     }
 
     .status.desconectado {
-      background: #ef4444;
-      color: white;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
+    .status.desconectado .status-dot {
+      background: #ef4444;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Stats */
     .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -61,47 +98,68 @@
     }
 
     .stat-card {
-      background: white;
+      background: #1e293b;
       padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #94a3b8;
+      margin-bottom: 8px;
     }
 
     .stat-value {
       font-size: 2rem;
-      font-weight: bold;
-      color: #667eea;
+      font-weight: 700;
+      color: #f1f5f9;
     }
 
-    .stat-label {
-      color: #666;
-      margin-top: 5px;
-    }
-
+    /* Odds Grid */
     #odds-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
     }
 
     .odd-card {
-      background: white;
-      border-radius: 15px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      transition: transform 0.3s ease;
-      animation: slideIn 0.5s ease;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .odd-card.nova {
-      border: 3px solid #10b981;
-      animation: pulse 2s infinite;
+    .odd-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .odd-card:hover::before,
+    .odd-card.nova::before {
+      transform: scaleX(1);
     }
 
     .odd-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+      transform: translateY(-4px);
+      border-color: #475569;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .odd-card.nova {
+      animation: slideIn 0.5s ease, glow 2s ease-in-out infinite;
+      border-color: #10b981;
     }
 
     @keyframes slideIn {
@@ -115,112 +173,197 @@
       }
     }
 
-    @keyframes pulse {
+    @keyframes glow {
       0%, 100% {
-        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
       }
       50% {
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.8);
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
       }
     }
 
     .odd-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
+      align-items: flex-start;
+      margin-bottom: 12px;
     }
 
     .odd-value {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #10b981;
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #10b981, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .odd-badge {
-      background: #667eea;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 0.8rem;
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid rgba(59, 130, 246, 0.3);
     }
 
     .odd-evento {
-      font-size: 1.1rem;
+      font-size: 1.125rem;
       font-weight: 600;
-      color: #333;
-      margin-bottom: 10px;
+      color: #f1f5f9;
+      margin-bottom: 8px;
+      line-height: 1.4;
     }
 
     .odd-info {
-      color: #666;
-      font-size: 0.9rem;
-      margin-top: 10px;
+      color: #94a3b8;
+      font-size: 0.875rem;
+      margin-bottom: 12px;
+    }
+
+    .odd-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid #334155;
     }
 
     .odd-timestamp {
-      color: #999;
-      font-size: 0.8rem;
-      margin-top: 5px;
+      color: #64748b;
+      font-size: 0.75rem;
     }
 
-    .empty-state {
-      text-align: center;
-      color: white;
-      padding: 60px 20px;
-    }
-
-    .empty-state h2 {
-      font-size: 2rem;
-      margin-bottom: 10px;
+    .btn-links {
+      display: flex;
+      gap: 8px;
     }
 
     .btn-link {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: white;
-      color: #667eea;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
       text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-      transition: transform 0.2s;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      transition: all 0.2s;
     }
 
     .btn-link:hover {
-      transform: scale(1.05);
+      background: rgba(16, 185, 129, 0.2);
+      transform: translateX(2px);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #64748b;
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .empty-state h2 {
+      font-size: 1.5rem;
+      color: #94a3b8;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .empty-state code {
+      background: #1e293b;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      color: #10b981;
+      border: 1px solid #334155;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.25rem;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      #odds-container {
+        grid-template-columns: 1fr;
+      }
+
+      .odd-value {
+        font-size: 2rem;
+      }
+
+      .odd-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .btn-links {
+        width: 100%;
+      }
+
+      .btn-link {
+        flex: 1;
+        justify-content: center;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>🎯 Monitor de Super Odds</h1>
-      <div class="status desconectado" id="status">⚠️ Conectando...</div>
+      <h1>
+        <span class="logo">🎯</span>
+        <span>Monitor de Super Odds</span>
+      </h1>
+      <div class="status desconectado" id="status">
+        <span class="status-dot"></span>
+        <span>Conectando...</span>
+      </div>
     </header>
 
     <div class="stats">
       <div class="stat-card">
-        <div class="stat-value" id="total-odds">0</div>
         <div class="stat-label">Total de Odds</div>
+        <div class="stat-value" id="total-odds">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="odds-novas">0</div>
         <div class="stat-label">Odds Novas</div>
+        <div class="stat-value" id="odds-novas">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="maior-odd">-</div>
         <div class="stat-label">Maior Odd</div>
+        <div class="stat-value" id="maior-odd">-</div>
       </div>
     </div>
 
     <div id="odds-container"></div>
 
     <div class="empty-state" id="empty-state">
-      <h2>🔍 Aguardando dados...</h2>
+      <div class="empty-state-icon">🔍</div>
+      <h2>Aguardando dados...</h2>
       <p>Execute o scraper no seu PC para começar a monitorar</p>
-      <p style="margin-top: 10px; font-size: 0.9rem;">
-        <code>node scraper.js</code>
+      <p style="margin-top: 16px;">
+        <code>node index.js</code>
       </p>
     </div>
   </div>
@@ -245,7 +388,7 @@
       ws.onopen = () => {
         console.log('✅ Conectado ao servidor');
         statusEl.className = 'status conectado';
-        statusEl.textContent = '✅ Conectado';
+        statusEl.innerHTML = '<span class="status-dot"></span><span>Conectado</span>';
       };
 
       ws.onmessage = (event) => {
@@ -253,7 +396,6 @@
           const data = JSON.parse(event.data);
 
           if (data.tipo === 'historico') {
-            // Receber histórico de odds
             data.dados.forEach(odd => mostrarOdd(odd.dados, false));
           } else if (data.tipo === 'super_odd') {
             mostrarOdd(data.dados, data.dados.isNova);
@@ -270,7 +412,7 @@
       ws.onclose = () => {
         console.log('⚠️ Desconectado, reconectando...');
         statusEl.className = 'status desconectado';
-        statusEl.textContent = '⚠️ Reconectando...';
+        statusEl.innerHTML = '<span class="status-dot"></span><span>Reconectando...</span>';
         setTimeout(conectarWebSocket, reconnectInterval);
       };
     }
@@ -278,12 +420,38 @@
     function mostrarOdd(odd, isNova = false) {
       emptyStateEl.style.display = 'none';
 
-      // Verificar se odd já existe
       const existente = document.querySelector(`[data-evento="${odd.evento}"]`);
       if (existente) {
-        // Atualizar odd existente
         const valorEl = existente.querySelector('.odd-value');
-        valorEl.textContent = odd.valor;
+        const valorAtual = valorEl.textContent;
+
+        // Se o valor mudou, atualizar e notificar
+        if (valorAtual !== odd.valor) {
+          valorEl.textContent = odd.valor;
+
+          // Animar mudança
+          existente.classList.add('nova');
+          setTimeout(() => {
+            existente.classList.remove('nova');
+          }, 3000);
+
+          // Tocar som e notificar se for nova (isNova = true)
+          if (isNova) {
+            playNotificationSound();
+            mostrarNotificacaoNavegador({
+              ...odd,
+              evento: `${odd.evento} (Odd alterada: ${valorAtual} → ${odd.valor})`
+            });
+            console.log(`📈 Odd alterada: ${odd.evento} | ${valorAtual} → ${odd.valor}`);
+          }
+        }
+
+        // Atualizar timestamp
+        const timestampEl = existente.querySelector('.odd-timestamp');
+        if (timestampEl) {
+          timestampEl.textContent = new Date().toLocaleTimeString();
+        }
+
         return;
       }
 
@@ -313,22 +481,29 @@
       div.className = `odd-card ${isNova ? 'nova' : ''}`;
       div.setAttribute('data-evento', odd.evento);
 
+      const linkDesktop = odd.link;
+      const linkMobile = odd.link ? odd.link.replace('/desktop/', '/mobile/') : '';
+
       div.innerHTML = `
         <div class="odd-header">
           <div class="odd-value">${odd.valor}</div>
           <div class="odd-badge">${odd.casa}</div>
         </div>
         <div class="odd-evento">${odd.evento}</div>
-        <div class="odd-info">
-          ${odd.tipo}${odd.dataHora ? ` • ${odd.dataHora}` : ''}
+        <div class="odd-info">${odd.tipo}${odd.dataHora ? ` • ${odd.dataHora}` : ''}</div>
+        <div class="odd-meta">
+          <div class="odd-timestamp">${new Date().toLocaleTimeString()}</div>
+          ${odd.link ? `
+            <div class="btn-links">
+              <a href="${linkDesktop}" target="_blank" class="btn-link">🖥️ Desktop</a>
+              <a href="${linkMobile}" target="_blank" class="btn-link">📱 Mobile</a>
+            </div>
+          ` : ''}
         </div>
-        <div class="odd-timestamp">${new Date().toLocaleTimeString()}</div>
-        ${odd.link ? `<a href="${odd.link}" target="_blank" class="btn-link">Ver no site</a>` : ''}
       `;
 
       containerEl.prepend(div);
 
-      // Remover animação de nova após 5 segundos
       if (isNova) {
         setTimeout(() => {
           div.classList.remove('nova');
@@ -337,18 +512,16 @@
     }
 
     function playNotificationSound() {
-      // Som de alerta mais alto e chamativo
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-      // Criar três beeps em sequência (alerta)
-      [0, 0.15, 0.3].forEach((delay, index) => {
+      [0, 0.15, 0.3].forEach((delay) => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
 
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
 
-        oscillator.frequency.value = 800; // Frequência alta (alerta)
+        oscillator.frequency.value = 800;
         oscillator.type = 'sine';
 
         gainNode.gain.setValueAtTime(0, audioContext.currentTime + delay);
@@ -361,15 +534,14 @@
     }
 
     function mostrarNotificacaoNavegador(odd) {
-      // Solicitar permissão para notificações
       if ('Notification' in window && Notification.permission === 'granted') {
         const notification = new Notification('🎯 Nova Super Odd!', {
           body: `${odd.evento}\nOdd: ${odd.valor} | ${odd.casa}`,
           icon: '🎯',
           badge: '🔔',
-          tag: odd.evento, // Evita notificações duplicadas
-          requireInteraction: true, // Não desaparece automaticamente
-          vibrate: [200, 100, 200] // Vibração no celular
+          tag: odd.evento,
+          requireInteraction: true,
+          vibrate: [200, 100, 200]
         });
 
         notification.onclick = () => {
@@ -388,17 +560,12 @@
               body: 'Você receberá alertas quando novas odds forem detectadas!',
               icon: '🎯'
             });
-          } else {
-            console.log('⚠️ Permissão para notificações negada');
           }
         });
       }
     }
 
-    // Iniciar conexão
     conectarWebSocket();
-
-    // Solicitar permissão para notificações após 2 segundos
     setTimeout(solicitarPermissaoNotificacao, 2000);
   </script>
 </body>
