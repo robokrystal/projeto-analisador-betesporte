@@ -56,8 +56,8 @@ node index.js
 ## 🌐 Acessar o Dashboard
 
 Depois de tudo rodando, acesse:
-- **Dashboard:** https://analisadorbetesporte.netlify.app
-- **Painel Admin:** https://analisadorbetesporte.netlify.app/admin.html
+- **Dashboard:** https://projeto-analisador-betesporte.pages.dev
+- **Painel Admin:** https://projeto-analisador-betesporte.pages.dev/admin.html
 
 ---
 

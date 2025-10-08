@@ -15,7 +15,7 @@ Sistema completo de autenticação com tokens para controle de acesso ao dashboa
 - ✅ Senha padrão admin: `a1b2c3d4`
 
 ### 2. **Painel Admin**
-- ✅ Acesso: `https://analisadorbetesporte.netlify.app/admin.html`
+- ✅ Acesso: `https://projeto-analisador-betesporte.pages.dev/admin.html`
 - ✅ Login protegido por senha
 - ✅ Criar novos tokens com duração personalizada
 - ✅ Visualizar todos os tokens (ativos, expirados, revogados)
@@ -37,7 +37,7 @@ Sistema completo de autenticação com tokens para controle de acesso ao dashboa
 
 ### **Passo 1: Acessar o Painel Admin**
 
-1. Acesse: `https://analisadorbetesporte.netlify.app/admin.html`
+1. Acesse: `https://projeto-analisador-betesporte.pages.dev/admin.html`
 2. Digite a senha: `a1b2c3d4`
 3. Clique em "Entrar"
 
@@ -51,7 +51,7 @@ Sistema completo de autenticação com tokens para controle de acesso ao dashboa
 
 ### **Passo 3: Cliente Acessa o Dashboard**
 
-1. Cliente acessa: `https://analisadorbetesporte.netlify.app`
+1. Cliente acessa: `https://projeto-analisador-betesporte.pages.dev`
 2. Cole o token recebido
 3. Clique em "Acessar Dashboard"
 4. Pronto! Dashboard liberado
@@ -175,7 +175,7 @@ ngrok http 3000
 
 2. **Cliente:**
    - Recebe o token
-   - Acessa `https://analisadorbetesporte.netlify.app`
+   - Acessa `https://projeto-analisador-betesporte.pages.dev`
    - Cola o token: `SUPER-A1B2C3D4E5F6`
    - Clica em "Acessar Dashboard"
    - Token é salvo automaticamente no navegador
@@ -292,8 +292,8 @@ Sistema funcionando 100%! Qualquer dúvida, estou aqui para ajudar.
 
 **Senhas e Acessos:**
 - 🔑 Senha Admin Padrão: `a1b2c3d4`
-- 🌐 Painel Admin: `https://analisadorbetesporte.netlify.app/admin.html`
-- 🌐 Dashboard: `https://analisadorbetesporte.netlify.app`
+- 🌐 Painel Admin: `https://projeto-analisador-betesporte.pages.dev/admin.html`
+- 🌐 Dashboard: `https://projeto-analisador-betesporte.pages.dev`
 - 🔌 API (Ngrok): `https://ectopic-rounded-izabella.ngrok-free.dev`
 
 ---
