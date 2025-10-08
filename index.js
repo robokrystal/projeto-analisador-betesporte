@@ -1,9 +1,16 @@
 const WebSocket = require('ws');
+const fetch = require('node-fetch');
+require('dotenv').config();
 
 // Configurações
 const INTERVALO_MIN = 1000; // 1 segundo
 const INTERVALO_MAX = 2000; // 2 segundos
 const WS_URL = process.env.WS_URL || 'wss://ectopic-rounded-izabella.ngrok-free.dev';
+
+// Configurações Telegram
+const TELEGRAM_ENABLED = process.env.TELEGRAM_ENABLED === 'true';
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 // Importar scrapers de todas as plataformas
 // Para ativar uma casa, descomente a linha correspondente
@@ -64,6 +71,47 @@ function conectarWebSocket(tentativa = 1, maxTentativas = 5) {
       }
     }, 30000);
   });
+}
+
+async function enviarParaTelegram(superOdd) {
+  if (!TELEGRAM_ENABLED || !TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    return;
+  }
+
+  try {
+    const mensagem = `
+🔥 <b>SUPER ODD ENCONTRADA!</b>
+
+🏠 <b>Casa:</b> ${superOdd.casa}
+⚽ <b>Jogo:</b> ${superOdd.evento}
+💰 <b>Odd:</b> ${superOdd.valor}
+📊 <b>Mercado:</b> ${superOdd.mercado || 'N/A'}
+🕐 <b>Horário:</b> ${new Date().toLocaleTimeString('pt-BR')}
+
+${superOdd.tipo ? `📝 <b>Tipo:</b> ${superOdd.tipo}` : ''}
+    `.trim();
+
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: mensagem,
+        parse_mode: 'HTML'
+      })
+    });
+
+    if (response.ok) {
+      console.log('✅ Notificação enviada para Telegram');
+    } else {
+      const erro = await response.text();
+      console.error('❌ Erro ao enviar Telegram:', erro);
+    }
+  } catch (erro) {
+    console.error('❌ Falha ao enviar Telegram:', erro.message);
+  }
 }
 
 function enviarAlerta(superOdd, isNova = true) {
@@ -132,16 +180,20 @@ async function monitorarTodasPlataformas() {
             console.log(`🆕 Nova Super ODD: [${odd.casa}] ${odd.evento} - ${odd.valor}`);
             oddsDetectadas.set(chaveEvento, { valor: odd.valor, timestamp: agora });
             enviarAlerta(odd, true);
+            await enviarParaTelegram(odd); // Enviar para Telegram
 
           } else if (oddAnterior.valor !== odd.valor) {
             // Valor da odd mudou!
             console.log(`📈 Odd alterada: [${odd.casa}] ${odd.evento} | ${oddAnterior.valor} → ${odd.valor}`);
             oddsDetectadas.set(chaveEvento, { valor: odd.valor, timestamp: agora });
 
-            enviarAlerta({
+            const oddAlterada = {
               ...odd,
               tipo: `Super Odd Alterada (${oddAnterior.valor} → ${odd.valor})`
-            }, true);
+            };
+
+            enviarAlerta(oddAlterada, true);
+            await enviarParaTelegram(oddAlterada); // Enviar alteração para Telegram
 
           } else {
             // Mesma odd, apenas atualizar timestamp
