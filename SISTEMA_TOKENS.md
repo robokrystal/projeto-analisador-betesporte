@@ -143,11 +143,13 @@ Body: {
 
 ## 🖥️ Deploy
 
-### **Servidor Backend (Fly.io)**
+### **Servidor Backend (Ngrok)**
 ```bash
-# Já configurado no server.js
-# Deploy:
-fly deploy
+# Rodar servidor localmente
+node server.js
+
+# Em outro terminal, expor com Ngrok
+ngrok http 3000
 ```
 
 ### **Frontend (Netlify)**
@@ -292,7 +294,7 @@ Sistema funcionando 100%! Qualquer dúvida, estou aqui para ajudar.
 - 🔑 Senha Admin Padrão: `admin123`
 - 🌐 Painel Admin: `https://analisadorbetesporte.netlify.app/admin.html`
 - 🌐 Dashboard: `https://analisadorbetesporte.netlify.app`
-- 🔌 API: `https://analisador-betesporte.fly.dev`
+- 🔌 API (Ngrok): `https://ectopic-rounded-izabella.ngrok-free.dev`
 
 ---
 
