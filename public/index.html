@@ -432,6 +432,9 @@
     function conectarWebSocket() {
       ws = new WebSocket(WS_URL);
 
+      // Forçar WebSocket a receber apenas texto (não Blob)
+      ws.binaryType = 'arraybuffer';
+
       ws.onopen = () => {
         console.log('✅ Conectado ao servidor WebSocket');
         console.log('📍 URL:', WS_URL);
@@ -443,9 +446,11 @@
         try {
           let mensagem = event.data;
 
-          // Se for Blob, converter para texto
+          // Se for Blob ou ArrayBuffer, converter para texto
           if (mensagem instanceof Blob) {
             mensagem = await mensagem.text();
+          } else if (mensagem instanceof ArrayBuffer) {
+            mensagem = new TextDecoder().decode(mensagem);
           }
 
           console.log('📨 Mensagem recebida do WebSocket:', mensagem);
@@ -462,6 +467,7 @@
           }
         } catch (erro) {
           console.error('❌ Erro ao processar mensagem:', erro);
+          console.error('Tipo de dado recebido:', typeof event.data, event.data.constructor.name);
           console.error('Dados recebidos:', event.data);
         }
       };
