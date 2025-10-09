@@ -5,6 +5,15 @@ const crypto = require('crypto');
 const dbPath = path.join(__dirname, 'tokens.db');
 const db = new sqlite3.Database(dbPath);
 
+// Função auxiliar para converter data UTC para horário de Brasília
+function toBrasiliaTime(date = new Date()) {
+  // Brasília é UTC-3
+  const brasiliaOffset = -3 * 60; // -3 horas em minutos
+  const utcTime = date.getTime() + (date.getTimezoneOffset() * 60000);
+  const brasiliaTime = new Date(utcTime + (brasiliaOffset * 60000));
+  return brasiliaTime.toISOString().replace('T', ' ').substring(0, 19);
+}
+
 // Inicializar tabelas
 db.serialize(() => {
   // Tabela de tokens de acesso
@@ -50,16 +59,19 @@ const tokenManager = {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + durationDays);
 
+      const createdAt = toBrasiliaTime();
+      const expiresAtBrasilia = toBrasiliaTime(expiresAt);
+
       db.run(
-        `INSERT INTO tokens (token, expires_at, duration_days) VALUES (?, ?, ?)`,
-        [token, expiresAt.toISOString(), durationDays],
+        `INSERT INTO tokens (token, created_at, expires_at, duration_days) VALUES (?, ?, ?, ?)`,
+        [token, createdAt, expiresAtBrasilia, durationDays],
         function (err) {
           if (err) reject(err);
           else
             resolve({
               id: this.lastID,
               token,
-              expiresAt: expiresAt.toISOString(),
+              expiresAt: expiresAtBrasilia,
               durationDays,
             });
         }
@@ -70,7 +82,7 @@ const tokenManager = {
   // Validar token
   validateToken(token) {
     return new Promise((resolve, reject) => {
-      const now = new Date().toISOString();
+      const now = toBrasiliaTime();
 
       db.get(
         `SELECT * FROM tokens WHERE token = ? AND is_active = 1`,
@@ -83,10 +95,10 @@ const tokenManager = {
           } else if (row.expires_at < now) {
             resolve({ valid: false, reason: 'Token expirado' });
           } else {
-            // Atualizar último uso
+            // Atualizar último uso com horário de Brasília
             db.run(
-              `UPDATE tokens SET last_used = CURRENT_TIMESTAMP WHERE token = ?`,
-              [token]
+              `UPDATE tokens SET last_used = ? WHERE token = ?`,
+              [now, token]
             );
             resolve({ valid: true, token: row });
           }
@@ -98,7 +110,7 @@ const tokenManager = {
   // Listar todos os tokens
   listTokens() {
     return new Promise((resolve, reject) => {
-      const now = new Date().toISOString();
+      const now = toBrasiliaTime();
 
       db.all(
         `SELECT
@@ -161,13 +173,14 @@ const tokenManager = {
         } else {
           const newExpiresAt = new Date(row.expires_at);
           newExpiresAt.setDate(newExpiresAt.getDate() + additionalDays);
+          const newExpiresAtBrasilia = toBrasiliaTime(newExpiresAt);
 
           db.run(
             `UPDATE tokens SET expires_at = ?, duration_days = duration_days + ? WHERE id = ?`,
-            [newExpiresAt.toISOString(), additionalDays, tokenId],
+            [newExpiresAtBrasilia, additionalDays, tokenId],
             function (err) {
               if (err) reject(err);
-              else resolve({ success: true, newExpiresAt });
+              else resolve({ success: true, newExpiresAt: newExpiresAtBrasilia });
             }
           );
         }
@@ -178,7 +191,7 @@ const tokenManager = {
   // Estatísticas
   getStats() {
     return new Promise((resolve, reject) => {
-      const now = new Date().toISOString();
+      const now = toBrasiliaTime();
 
       db.get(
         `SELECT
