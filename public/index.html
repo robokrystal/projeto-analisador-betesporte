@@ -557,6 +557,13 @@
     const API_URL = 'https://kept-romantic-twins-asin.trycloudflare.com';
     const WS_URL = 'wss://kept-romantic-twins-asin.trycloudflare.com';
 
+    // Gerar ou recuperar sessionId único
+    let sessionId = localStorage.getItem('session_id');
+    if (!sessionId) {
+      sessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('session_id', sessionId);
+    }
+
     // Verificar se já tem token salvo
     const savedToken = localStorage.getItem('access_token');
 
@@ -578,14 +585,19 @@
         const response = await fetch(`${API_URL}/api/validate-token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ token, sessionId })
         });
 
         const data = await response.json();
 
         if (data.valid) {
           localStorage.setItem('access_token', token);
-          messageEl.textContent = '✅ Token válido! Acessando dashboard...';
+
+          if (data.needsReconnect) {
+            messageEl.textContent = '⚠️ Outro dispositivo foi desconectado. Acessando...';
+          } else {
+            messageEl.textContent = '✅ Token válido! Acessando dashboard...';
+          }
           messageEl.className = 'success-message';
 
           setTimeout(() => {
@@ -607,13 +619,22 @@
         const response = await fetch(`${API_URL}/api/validate-token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ token, sessionId })
         });
 
         const data = await response.json();
 
         if (data.valid) {
-          showDashboard();
+          if (data.needsReconnect) {
+            // Outro dispositivo está usando, desconectar este
+            alert('⚠️ Este token já está sendo usado em outro dispositivo. Você será desconectado em 3 segundos...');
+            setTimeout(() => {
+              localStorage.removeItem('access_token');
+              location.reload();
+            }, 3000);
+          } else {
+            showDashboard();
+          }
         } else {
           localStorage.removeItem('access_token');
           document.getElementById('loginScreen').style.display = 'flex';

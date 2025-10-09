@@ -25,13 +25,20 @@ db.serialize(() => {
     expires_at DATETIME NOT NULL,
     duration_days INTEGER NOT NULL,
     is_active INTEGER DEFAULT 1,
-    last_used DATETIME
+    last_used DATETIME,
+    session_id TEXT
   )`);
 
-  // Adicionar coluna nickname se não existir (para bancos antigos)
+  // Adicionar colunas se não existirem (para bancos antigos)
   db.run(`ALTER TABLE tokens ADD COLUMN nickname TEXT`, (err) => {
     if (err && !err.message.includes('duplicate column')) {
       console.error('Erro ao adicionar coluna nickname:', err.message);
+    }
+  });
+
+  db.run(`ALTER TABLE tokens ADD COLUMN session_id TEXT`, (err) => {
+    if (err && !err.message.includes('duplicate column')) {
+      console.error('Erro ao adicionar coluna session_id:', err.message);
     }
   });
 
@@ -89,7 +96,7 @@ const tokenManager = {
   },
 
   // Validar token
-  validateToken(token) {
+  validateToken(token, sessionId = null) {
     return new Promise((resolve, reject) => {
       const now = toBrasiliaTime();
 
@@ -104,12 +111,38 @@ const tokenManager = {
           } else if (row.expires_at < now) {
             resolve({ valid: false, reason: 'Token expirado' });
           } else {
-            // Atualizar último uso com horário de Brasília
-            db.run(
-              `UPDATE tokens SET last_used = ? WHERE token = ?`,
-              [now, token]
-            );
-            resolve({ valid: true, token: row });
+            // Atualizar último uso e session_id com horário de Brasília
+            if (sessionId) {
+              db.run(
+                `UPDATE tokens SET last_used = ?, session_id = ? WHERE token = ?`,
+                [now, sessionId, token]
+              );
+            } else {
+              db.run(
+                `UPDATE tokens SET last_used = ? WHERE token = ?`,
+                [now, token]
+              );
+            }
+            resolve({ valid: true, token: row, needsReconnect: sessionId && row.session_id && row.session_id !== sessionId });
+          }
+        }
+      );
+    });
+  },
+
+  // Verificar se session_id é válida
+  validateSession(token, sessionId) {
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT session_id FROM tokens WHERE token = ?`,
+        [token],
+        (err, row) => {
+          if (err) {
+            reject(err);
+          } else if (!row) {
+            resolve({ valid: false });
+          } else {
+            resolve({ valid: !row.session_id || row.session_id === sessionId });
           }
         }
       );

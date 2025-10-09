@@ -27,12 +27,12 @@ app.get('/health', (req, res) => {
 // Validar token de acesso (usado pelo dashboard)
 app.post('/api/validate-token', async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token, sessionId } = req.body;
     if (!token) {
       return res.status(400).json({ valid: false, message: 'Token não fornecido' });
     }
 
-    const result = await tokenManager.validateToken(token);
+    const result = await tokenManager.validateToken(token, sessionId);
     res.json(result);
   } catch (error) {
     res.status(500).json({ valid: false, message: 'Erro ao validar token' });
