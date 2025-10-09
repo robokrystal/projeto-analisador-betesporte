@@ -169,7 +169,7 @@ async function monitorarTodasPlataformas() {
           }
         });
 
-        todasOdds.forEach((odd) => {
+        for (const odd of todasOdds) {
           const chaveEvento = `${odd.casa}:${odd.evento}`;
           const agora = Date.now();
 
@@ -200,7 +200,7 @@ async function monitorarTodasPlataformas() {
             oddsDetectadas.set(chaveEvento, { valor: odd.valor, timestamp: agora });
             enviarAlerta(odd, false);
           }
-        });
+        }
 
         // Limpar cache de odds antigas (> 30 min)
         for (const [chave, dados] of oddsDetectadas.entries()) {
