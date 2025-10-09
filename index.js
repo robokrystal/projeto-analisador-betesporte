@@ -3,8 +3,8 @@ const fetch = require('node-fetch');
 require('dotenv').config();
 
 // Configurações
-const INTERVALO_MIN = 1000; // 1 segundo
-const INTERVALO_MAX = 2000; // 2 segundos
+const INTERVALO_MIN = 500;  // 0.5 segundo (mais rápido!)
+const INTERVALO_MAX = 1000; // 1 segundo
 const WS_URL = process.env.WS_URL || 'wss://ectopic-rounded-izabella.ngrok-free.dev';
 
 // Configurações Telegram
