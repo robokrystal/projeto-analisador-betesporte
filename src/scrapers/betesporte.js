@@ -34,12 +34,16 @@ async function buscarSuperOdds() {
                   tournament.events.forEach(event => {
                     event.markets.forEach(market => {
                       market.options.forEach(option => {
+                        // Converter para horário de Brasília (UTC-3)
+                        const dataUTC = new Date(event.date);
+                        const dataBrasilia = new Date(dataUTC.getTime() - (3 * 60 * 60 * 1000));
+
                         superOdds.push({
                           evento: event.homeTeamName,
                           tipo: market.name,
                           valor: option.odd.toString().replace('.', ','),
                           casa: 'BetEsporte',
-                          dataHora: new Date(event.date).toLocaleString('pt-BR'),
+                          dataHora: dataBrasilia.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
                           link: `https://betesporte.bet.br/sports/desktop/pre-match-detail/999/4200000001/${event.id}`
                         });
                       });
