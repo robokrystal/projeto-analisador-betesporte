@@ -34,9 +34,9 @@ async function buscarSuperOdds() {
                   tournament.events.forEach(event => {
                     event.markets.forEach(market => {
                       market.options.forEach(option => {
-                        // Converter para horário de Brasília (UTC-3)
+                        // A API da BetEsporte retorna em UTC, adicionar 3h para Brasília
                         const dataUTC = new Date(event.date);
-                        const dataBrasilia = new Date(dataUTC.getTime() - (3 * 60 * 60 * 1000));
+                        const dataBrasilia = new Date(dataUTC.getTime() + (3 * 60 * 60 * 1000));
 
                         superOdds.push({
                           evento: event.homeTeamName,
