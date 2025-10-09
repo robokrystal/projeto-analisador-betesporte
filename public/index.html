@@ -638,6 +638,7 @@
     let oddsNovas = 0;
     let maiorOdd = 0;
     let statusEl, containerEl, emptyStateEl;
+    let ignoreHistory = false; // Flag para ignorar histórico após limpar
 
     // Função global de som (DEVE estar ANTES de iniciarDashboard)
     function playNotificationSound() {
@@ -687,6 +688,11 @@
           console.log('📦 Dados parseados:', data);
 
           if (data.tipo === 'historico') {
+            // Ignorar histórico se o usuário limpou a tela
+            if (ignoreHistory) {
+              console.log('🚫 Histórico ignorado (tela foi limpa)');
+              return;
+            }
             console.log('📜 Recebendo histórico de', data.dados.length, 'odds');
             data.dados.forEach(odd => mostrarOdd(odd.dados, false));
           } else if (data.tipo === 'super_odd') {
@@ -858,8 +864,17 @@
       // Mostrar empty state
       emptyStateEl.style.display = 'block';
 
-      console.log('🗑️ Odds limpas! Aguardando novas...');
+      // Ativar flag para ignorar histórico
+      ignoreHistory = true;
+
+      console.log('🗑️ Odds limpas! Aguardando apenas novas odds...');
     }
+
+    // Adicionar event listener para F5 (recarregar página)
+    window.addEventListener('beforeunload', () => {
+      // Resetar flag ao recarregar
+      ignoreHistory = false;
+    });
 
     function testarSom() {
       console.log('🔊 Testando som...');
