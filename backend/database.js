@@ -64,7 +64,7 @@ db.serialize(() => {
 const tokenManager = {
   // Gerar token único
   generateToken() {
-    return 'SUPER-' + crypto.randomBytes(6).toString('hex').toUpperCase();
+    return 'ODD-TOKEN-' + crypto.randomBytes(6).toString('hex').toUpperCase();
   },
 
   // Criar novo token
