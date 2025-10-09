@@ -20,12 +20,20 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS tokens (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     token TEXT UNIQUE NOT NULL,
+    nickname TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     expires_at DATETIME NOT NULL,
     duration_days INTEGER NOT NULL,
     is_active INTEGER DEFAULT 1,
     last_used DATETIME
   )`);
+
+  // Adicionar coluna nickname se não existir (para bancos antigos)
+  db.run(`ALTER TABLE tokens ADD COLUMN nickname TEXT`, (err) => {
+    if (err && !err.message.includes('duplicate column')) {
+      console.error('Erro ao adicionar coluna nickname:', err.message);
+    }
+  });
 
   // Tabela de configuração do admin
   db.run(`CREATE TABLE IF NOT EXISTS admin_config (
@@ -53,7 +61,7 @@ const tokenManager = {
   },
 
   // Criar novo token
-  createToken(durationDays) {
+  createToken(durationDays, nickname = null) {
     return new Promise((resolve, reject) => {
       const token = this.generateToken();
       const expiresAt = new Date();
@@ -63,14 +71,15 @@ const tokenManager = {
       const expiresAtBrasilia = toBrasiliaTime(expiresAt);
 
       db.run(
-        `INSERT INTO tokens (token, created_at, expires_at, duration_days) VALUES (?, ?, ?, ?)`,
-        [token, createdAt, expiresAtBrasilia, durationDays],
+        `INSERT INTO tokens (token, nickname, created_at, expires_at, duration_days) VALUES (?, ?, ?, ?, ?)`,
+        [token, nickname, createdAt, expiresAtBrasilia, durationDays],
         function (err) {
           if (err) reject(err);
           else
             resolve({
               id: this.lastID,
               token,
+              nickname,
               expiresAt: expiresAtBrasilia,
               durationDays,
             });
@@ -116,6 +125,7 @@ const tokenManager = {
         `SELECT
           id,
           token,
+          nickname,
           created_at,
           expires_at,
           duration_days,

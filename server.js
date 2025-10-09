@@ -60,7 +60,7 @@ app.post('/api/admin/login', async (req, res) => {
 // Criar novo token
 app.post('/api/admin/tokens/create', async (req, res) => {
   try {
-    const { password, durationDays } = req.body;
+    const { password, durationDays, nickname } = req.body;
 
     // Validar senha admin
     const isValid = await adminManager.validatePassword(password);
@@ -72,7 +72,7 @@ app.post('/api/admin/tokens/create', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Duração inválida' });
     }
 
-    const newToken = await tokenManager.createToken(parseInt(durationDays));
+    const newToken = await tokenManager.createToken(parseInt(durationDays), nickname || null);
     res.json({ success: true, token: newToken });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Erro ao criar token' });

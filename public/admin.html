@@ -444,6 +444,10 @@
         <h2>➕ Criar Novo Token</h2>
         <div class="create-token-form">
           <div class="form-group">
+            <label>Apelido / Nome do Cliente (opcional)</label>
+            <input type="text" id="tokenNickname" placeholder="Ex: João Silva" maxlength="50">
+          </div>
+          <div class="form-group">
             <label>Duração (dias)</label>
             <input type="number" id="tokenDuration" placeholder="Ex: 30" min="1" required>
           </div>
@@ -513,6 +517,7 @@
     // Create Token
     async function createToken() {
       const durationDays = document.getElementById('tokenDuration').value;
+      const nickname = document.getElementById('tokenNickname').value.trim();
 
       if (!durationDays || durationDays <= 0) {
         alert('Por favor, insira uma duração válida');
@@ -523,7 +528,11 @@
         const response = await fetch(`${API_URL}/api/admin/tokens/create`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: adminPassword, durationDays: parseInt(durationDays) })
+          body: JSON.stringify({
+            password: adminPassword,
+            durationDays: parseInt(durationDays),
+            nickname: nickname || null
+          })
         });
 
         const data = await response.json();
@@ -533,6 +542,7 @@
           document.getElementById('tokenExpiry').textContent = new Date(data.token.expiresAt).toLocaleString('pt-BR');
           document.getElementById('tokenResult').classList.add('show');
           document.getElementById('tokenDuration').value = '';
+          document.getElementById('tokenNickname').value = '';
 
           // Reload tokens list
           setTimeout(() => loadTokens(), 1000);
@@ -596,6 +606,7 @@
         <table>
           <thead>
             <tr>
+              <th>Apelido</th>
               <th>Token</th>
               <th>Status</th>
               <th>Criado em</th>
@@ -614,9 +625,11 @@
         const expiresAt = new Date(token.expires_at).toLocaleString('pt-BR');
         const lastUsed = token.last_used ? new Date(token.last_used).toLocaleString('pt-BR') : 'Nunca';
         const daysRemaining = token.days_remaining >= 0 ? token.days_remaining : 0;
+        const nickname = token.nickname || '-';
 
         html += `
           <tr>
+            <td><strong>${nickname}</strong></td>
             <td><code>${token.token}</code></td>
             <td><span class="status-badge ${statusClass}">${token.status}</span></td>
             <td>${createdAt}</td>
