@@ -814,7 +814,8 @@
           <div class="odd-badge">${odd.casa}</div>
         </div>
         <div class="odd-evento">${odd.evento}</div>
-        <div class="odd-info">${odd.tipo}${odd.dataHora ? ` • ${odd.dataHora}` : ''}</div>
+        <div class="odd-info">${odd.tipo}</div>
+        ${odd.dataHora ? `<div class="odd-info" style="margin-top: 8px; color: #10b981;"><strong>📅 ${odd.dataHora}</strong></div>` : ''}
         <div class="odd-meta">
           <div class="odd-timestamp">${new Date().toLocaleTimeString()}</div>
           ${odd.link ? `
