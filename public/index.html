@@ -659,7 +659,8 @@
     let oddsNovas = 0;
     let maiorOdd = 0;
     let statusEl, containerEl, emptyStateEl;
-    let ignoreHistory = false; // Flag para ignorar histórico após limpar
+    // Recuperar flag do sessionStorage (reseta ao fechar navegador/aba)
+    let ignoreHistory = sessionStorage.getItem('ignoreHistory') === 'true';
 
     // Função global de som (DEVE estar ANTES de iniciarDashboard)
     function playNotificationSound() {
@@ -678,6 +679,12 @@
       statusEl = document.getElementById('status');
       containerEl = document.getElementById('odds-container');
       emptyStateEl = document.getElementById('empty-state');
+
+      // Resetar flag ao recarregar a página (F5)
+      // Se o usuário recarregou manualmente, queremos mostrar o histórico novamente
+      window.addEventListener('beforeunload', () => {
+        sessionStorage.removeItem('ignoreHistory');
+      });
 
     function conectarWebSocket() {
       ws = new WebSocket(WS_URL);
@@ -885,17 +892,12 @@
       // Mostrar empty state
       emptyStateEl.style.display = 'block';
 
-      // Ativar flag para ignorar histórico
+      // Ativar flag para ignorar histórico e salvar no sessionStorage
       ignoreHistory = true;
+      sessionStorage.setItem('ignoreHistory', 'true');
 
       console.log('🗑️ Odds limpas! Aguardando apenas novas odds...');
     }
-
-    // Adicionar event listener para F5 (recarregar página)
-    window.addEventListener('beforeunload', () => {
-      // Resetar flag ao recarregar
-      ignoreHistory = false;
-    });
 
     function testarSom() {
       console.log('🔊 Testando som...');
