@@ -353,6 +353,48 @@
       border: 1px solid rgba(59, 130, 246, 0.3);
     }
 
+    .odd-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .badge-live {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      animation: pulseLive 1.5s ease-in-out infinite;
+    }
+
+    .badge-primeiro-tempo {
+      background: rgba(251, 191, 36, 0.15);
+      color: #f59e0b;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      text-transform: uppercase;
+    }
+
+    @keyframes pulseLive {
+      0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+      }
+      50% {
+        opacity: 0.8;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+      }
+    }
+
     .odd-evento {
       font-size: 1.125rem;
       font-weight: 600;
@@ -808,11 +850,36 @@
       const linkDesktop = odd.link;
       const linkMobile = odd.link ? odd.link.replace('/desktop/', '/mobile/') : '';
 
+      // Detectar se é AO VIVO ou 1º Tempo
+      const isAoVivo = odd.tipo && odd.tipo.toUpperCase().includes('AO VIVO');
+      const isPrimeiroTempo = odd.tipo && (
+        odd.tipo.includes('1º Tempo') ||
+        odd.tipo.includes('1° Tempo') ||
+        odd.tipo.toLowerCase().includes('primeiro tempo') ||
+        odd.tipo.includes('1T') ||
+        odd.tipo.includes('HT') ||
+        odd.tipo.includes('1st Half')
+      );
+
+      // Criar badges
+      let badgesHTML = '';
+      if (isAoVivo || isPrimeiroTempo) {
+        badgesHTML = '<div class="odd-badges">';
+        if (isAoVivo) {
+          badgesHTML += '<span class="badge-live">🔴 AO VIVO</span>';
+        }
+        if (isPrimeiroTempo) {
+          badgesHTML += '<span class="badge-primeiro-tempo">⏱️ 1º TEMPO</span>';
+        }
+        badgesHTML += '</div>';
+      }
+
       div.innerHTML = `
         <div class="odd-header">
           <div class="odd-value">${odd.valor}</div>
           <div class="odd-badge">${odd.casa}</div>
         </div>
+        ${badgesHTML}
         <div class="odd-evento">${odd.evento}</div>
         <div class="odd-info">${odd.tipo}</div>
         ${odd.dataHora ? `<div class="odd-info" style="margin-top: 8px; color: #10b981;"><strong>📅 ${odd.dataHora}</strong></div>` : ''}
