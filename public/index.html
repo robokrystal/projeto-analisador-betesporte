@@ -850,16 +850,16 @@
       const linkDesktop = odd.link;
       const linkMobile = odd.link ? odd.link.replace('/desktop/', '/mobile/') : '';
 
-      // Detectar se é AO VIVO ou 1º Tempo
-      const isAoVivo = odd.tipo && odd.tipo.toUpperCase().includes('AO VIVO');
-      const isPrimeiroTempo = odd.tipo && (
-        odd.tipo.includes('1º Tempo') ||
-        odd.tipo.includes('1° Tempo') ||
-        odd.tipo.toLowerCase().includes('primeiro tempo') ||
-        odd.tipo.includes('1T') ||
-        odd.tipo.includes('HT') ||
-        odd.tipo.includes('1st Half')
-      );
+      // Detectar se é AO VIVO ou 1º Tempo (buscar em tipo E evento)
+      const textoCompleto = `${odd.tipo || ''} ${odd.evento || ''}`.toUpperCase();
+      const isAoVivo = textoCompleto.includes('AO VIVO');
+      const isPrimeiroTempo =
+        textoCompleto.includes('1º TEMPO') ||
+        textoCompleto.includes('1° TEMPO') ||
+        textoCompleto.includes('PRIMEIRO TEMPO') ||
+        textoCompleto.includes('1T') ||
+        textoCompleto.includes('HT') ||
+        textoCompleto.includes('1ST HALF');
 
       // Criar badges
       let badgesHTML = '';
